@@ -3,7 +3,7 @@
 """
 Written by: Tony Tiger 6/2019
 
-Python version: 2
+Python version: 3
 
 This program generates manchester encoded data packets for LRS pagers and GNU Radio.
 
@@ -40,8 +40,8 @@ def encode_manchester( bin_list ):
       l = re.findall('.', "".join( pre + bin_list  ) )  # join the preamble and the rest of the packet
 
       m = []
-      print '\n'
-      print "".join(str(x) for x in l)  # convert list to string
+      print('\n')
+      print("".join(str(x) for x in l))  # convert list to string
 
       for x in l:   # convert to manchaster coding
            if( x == '0'):
@@ -67,7 +67,7 @@ def calculate_crc( pre, sink_word, rest_id, station_id, pager_n, alert_type ):
     for b in bin_array:
          sum +=  int(b , 2)
 
-    print '\n{0} {1} {2} {3} {4} {5} {6} {7}'.format( pre, sink_word, rest_id, station_id, pager_n, '0000000000', alert_type, format( ( sum % 255), '02x' ))
+    print('\n{0} {1} {2} {3} {4} {5} {6} {7}'.format( pre, sink_word, rest_id, station_id, pager_n, '0000000000', alert_type, format( ( sum % 255), '02x' )))
     bin_array.append( format( ( sum % 255), '08b') )
     return bin_array
 
@@ -79,25 +79,25 @@ def calculate_crc( pre, sink_word, rest_id, station_id, pager_n, alert_type ):
 ##########################################
 
 try:
-    rest_id=int(raw_input('\nEnter restaurant id 0-255: '))
+    rest_id=int(input('\nEnter restaurant id 0-255: '))
 except ValueError:
-    print "Not a number"
+    print("Not a number")
 
 try:
-    pagers=(raw_input('Enter one or more pager numbers 0-1023 : '))
+    pagers=(input('Enter one or more pager numbers 0-1023 : '))
 except ValueError:
-    print "Not a number"
+    print("Not a number")
 
 pager_list = []
 pager_list = map( int, re.split('\s+',pagers))
 
-print '1 Flash 30 Seconds\n2 Flash 5 Minutes\n3 Flash/Beep 5X5\n4 Beep 3 Times\n5 Beep 5 Minutes\n6 Glow 5 Minutes\n7 Glow/Vib 15 Times\n10 Flash/Vib 1 Second\n68 beep 3 times\n'
+print('1 Flash 30 Seconds\n2 Flash 5 Minutes\n3 Flash/Beep 5X5\n4 Beep 3 Times\n5 Beep 5 Minutes\n6 Glow 5 Minutes\n7 Glow/Vib 15 Times\n10 Flash/Vib 1 Second\n68 beep 3 times\n')
 
 
 try:
-    alert_type=int(raw_input('Enter alert type: '))
+    alert_type=int(input('Enter alert type: '))
 except ValueError:
-    print "Not a number"
+    print("Not a number")
 
 
 handle = open('pager.bin', 'wb')
@@ -109,9 +109,9 @@ for pager_n in pager_list:
     data = encode_manchester( crc_out )
     [ data.append(0) for x in range(0,100) ]
 
-    print '\n';
-    print "".join(str(x) for x in data)
-    print '\n'
+    print('\n');
+    print("".join(str(x) for x in data))
+    print('\n')
 
     for d in data:
         if d == 0:
@@ -119,7 +119,7 @@ for pager_n in pager_list:
         elif d == 1:
             handle.write(struct.pack('f', 1)) 
         else:
-            print "Error detected in data"
+            print("Error detected in data")
             sys.exit()
 
 handle.close()    
