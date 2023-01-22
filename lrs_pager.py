@@ -79,7 +79,7 @@ def calculate_crc( pre, sink_word, rest_id, station_id, pager_n, alert_type ):
 ##########################################
 
 try:
-    rest_id=int(raw_input('\nEnter restaurant id 0-255: '))
+    restaurants=raw_input('\nEnter one or more restaurant ids 0-255 : ')
 except ValueError:
     print "Not a number"
 
@@ -89,7 +89,10 @@ except ValueError:
     print "Not a number"
 
 pager_list = []
-pager_list = map( int, re.split('\s+',pagers))
+pager_list = list(map( int, re.split('\s+',pagers)))
+
+restaurant_list = []
+restaurant_list = map( int, re.split('\s+',restaurants))
 
 print '1 Flash 30 Seconds\n2 Flash 5 Minutes\n3 Flash/Beep 5X5\n4 Beep 3 Times\n5 Beep 5 Minutes\n6 Glow 5 Minutes\n7 Glow/Vib 15 Times\n10 Flash/Vib 1 Second\n68 beep 3 times\n'
 
@@ -103,24 +106,25 @@ except ValueError:
 handle = open('pager.bin', 'wb')
 
 data = []
-for pager_n in pager_list:
-    crc_out = ( calculate_crc( format(11184810, '06x') , format( 64557,'04x'), format(rest_id, '02x'), '0', format( pager_n  ,'03x' ), format(alert_type, '02x') ) )
+for restaurant in restaurant_list:
+    for pager_n in pager_list:
+        crc_out = ( calculate_crc( format(11184810, '06x') , format( 64557,'04x'), format(restaurant, '02x'), '0', format( pager_n  ,'03x' ), format(alert_type, '02x') ) )
 
-    data = encode_manchester( crc_out )
-    [ data.append(0) for x in range(0,100) ]
+        data = encode_manchester( crc_out )
+        [ data.append(0) for x in range(0,100) ]
 
-    print '\n';
-    print "".join(str(x) for x in data)
-    print '\n'
+        print '\n';
+        print "".join(str(x) for x in data)
+        print '\n'
 
-    for d in data:
-        if d == 0:
-            handle.write(struct.pack('f', .0001)) 
-        elif d == 1:
-            handle.write(struct.pack('f', 1)) 
-        else:
-            print "Error detected in data"
-            sys.exit()
+        for d in data:
+            if d == 0:
+                handle.write(struct.pack('f', .0001)) 
+            elif d == 1:
+                handle.write(struct.pack('f', 1)) 
+            else:
+                print "Error detected in data"
+                sys.exit()
 
 handle.close()    
 
